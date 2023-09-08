@@ -12,7 +12,7 @@ import aiohttp
 import async_timeout
 import jwt
 
-from apple_weatherkit import DataSetType
+from . import DataSetType
 
 
 class WeatherKitApiClientError(Exception):
@@ -54,7 +54,7 @@ class WeatherKitApiClient:
         token = self._generate_jwt()
         query = urlencode(
             OrderedDict(
-                dataSets=",".join([data_set.value for data_set in data_sets]),
+                dataSets=",".join(data_sets),
                 hourlyStart=hourly_start.isoformat() + "Z",
                 hourlyEnd=hourly_end.isoformat() + "Z",
             )
@@ -69,12 +69,11 @@ class WeatherKitApiClient:
     async def get_availability(self, lat: float, lon: float) -> list[DataSetType]:
         """Determine availability of different weather data sets."""
         token = self._generate_jwt()
-        resp = await self._api_wrapper(
+        return await self._api_wrapper(
             method="get",
             url=f"https://weatherkit.apple.com/api/v1/availability/{lat}/{lon}",
             headers={"Authorization": f"Bearer {token}"},
         )
-        return json.loads(resp, list[DataSetType])
 
     def _generate_jwt(self) -> str:
         return jwt.encode(
