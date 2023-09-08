@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime
+import json
 import socket
 from collections import OrderedDict
 from typing import Literal
@@ -10,6 +11,8 @@ from urllib.parse import urlencode
 import aiohttp
 import async_timeout
 import jwt
+
+from apple_weatherkit import DataSetType
 
 
 class WeatherKitApiClientError(Exception):
@@ -43,13 +46,7 @@ class WeatherKitApiClient:
         self,
         lat: float,
         lon: float,
-        data_sets: list[Literal[
-            "currentWeather",
-            "forecastHourly",
-            "forecastDaily",
-            "forecastNextHour",
-            "weatherAlerts",
-        ]] = ["currentWeather"],
+        data_sets: list[DataSetType] = [DataSetType.CURRENT_WEATHER],
         hourly_start: datetime.datetime = datetime.datetime.utcnow(),
         hourly_end: datetime.datetime = datetime.datetime.utcnow() + datetime.timedelta(days=1),
         lang: str = "en-US"
@@ -57,7 +54,7 @@ class WeatherKitApiClient:
         token = self._generate_jwt()
         query = urlencode(
             OrderedDict(
-                dataSets=",".join(data_sets),
+                dataSets=",".join([data_set.value for data_set in data_sets]),
                 hourlyStart=hourly_start.isoformat() + "Z",
                 hourlyEnd=hourly_end.isoformat() + "Z",
             )
@@ -69,14 +66,15 @@ class WeatherKitApiClient:
             headers={"Authorization": f"Bearer {token}"},
         )
 
-    async def get_availability(self, lat: float, lon: float) -> any:
+    async def get_availability(self, lat: float, lon: float) -> list[DataSetType]:
         """Determine availability of different weather data sets."""
         token = self._generate_jwt()
-        return await self._api_wrapper(
+        resp = await self._api_wrapper(
             method="get",
             url=f"https://weatherkit.apple.com/api/v1/availability/{lat}/{lon}",
             headers={"Authorization": f"Bearer {token}"},
         )
+        return json.loads(resp, list[DataSetType])
 
     def _generate_jwt(self) -> str:
         return jwt.encode(
