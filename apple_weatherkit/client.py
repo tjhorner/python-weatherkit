@@ -34,7 +34,7 @@ class WeatherKitApiClient:
         service_id: str,
         team_id: str,
         key_pem: str,
-        session: aiohttp.ClientSession = aiohttp.ClientSession(),
+        session: aiohttp.ClientSession | None,
     ) -> None:
         self._key_id = key_id
         self._service_id = service_id
@@ -96,6 +96,8 @@ class WeatherKitApiClient:
         headers: dict | None = None,
     ) -> any:
         """Get information from the API."""
+        if self._session is None:
+            self._session = aiohttp.ClientSession()
         try:
             async with async_timeout.timeout(10):
                 response = await self._session.request(
