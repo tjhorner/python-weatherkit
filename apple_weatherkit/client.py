@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import json
 import socket
-from collections import OrderedDict
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 from urllib.parse import urlencode
@@ -55,11 +54,11 @@ class WeatherKitApiClient:
         hourly_end = hourly_end or datetime.now(tz=UTC) + timedelta(days=1)
         token = self._generate_jwt()
         query = urlencode(
-            OrderedDict(
-                dataSets=",".join(data_sets),
-                hourlyStart=hourly_start.isoformat(),
-                hourlyEnd=hourly_end.isoformat(),
-            )
+            {
+                "dataSets": ",".join(data_sets),
+                "hourlyStart": hourly_start.isoformat(),
+                "hourlyEnd": hourly_end.isoformat(),
+            }
         )
 
         return await self._api_wrapper(
