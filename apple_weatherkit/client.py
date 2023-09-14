@@ -47,10 +47,12 @@ class WeatherKitApiClient:
         lat: float,
         lon: float,
         data_sets: list[DataSetType] = [DataSetType.CURRENT_WEATHER],
-        hourly_start: datetime.datetime = datetime.datetime.utcnow(),
-        hourly_end: datetime.datetime = datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        hourly_start: datetime.datetime | None = None,
+        hourly_end: datetime.datetime | None = None,
         lang: str = "en-US"
     ) -> Any:
+        hourly_start = hourly_start or datetime.datetime.utcnow()
+        hourly_end = hourly_end or datetime.datetime.utcnow() + datetime.timedelta(days=1)
         token = self._generate_jwt()
         query = urlencode(
             OrderedDict(
