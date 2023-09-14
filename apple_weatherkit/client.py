@@ -5,7 +5,7 @@ import datetime
 import json
 import socket
 from collections import OrderedDict
-from typing import Literal
+from typing import Any, Literal
 from urllib.parse import urlencode
 
 import aiohttp
@@ -50,7 +50,7 @@ class WeatherKitApiClient:
         hourly_start: datetime.datetime = datetime.datetime.utcnow(),
         hourly_end: datetime.datetime = datetime.datetime.utcnow() + datetime.timedelta(days=1),
         lang: str = "en-US"
-    ) -> any:
+    ) -> Any:
         token = self._generate_jwt()
         query = urlencode(
             OrderedDict(
@@ -94,7 +94,7 @@ class WeatherKitApiClient:
         url: str,
         data: dict | None = None,
         headers: dict | None = None,
-    ) -> any:
+    ) -> Any:
         """Get information from the API."""
         if self._session is None:
             self._session = aiohttp.ClientSession()
