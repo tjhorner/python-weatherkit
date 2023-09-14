@@ -52,12 +52,17 @@ class WeatherKitApiClient:
     ) -> Any:
         hourly_start = hourly_start or datetime.now(tz=UTC)
         hourly_end = hourly_end or datetime.now(tz=UTC) + timedelta(days=1)
+        if hourly_start.tzinfo:
+            hourly_start = hourly_start.astimezone(tz=UTC).replace(tzinfo=None)
+        if hourly_end.tzinfo:
+            hourly_end = hourly_end.astimezone(tz=UTC).replace(tzinfo=None)
+
         token = self._generate_jwt()
         query = urlencode(
             {
                 "dataSets": ",".join(data_sets),
-                "hourlyStart": hourly_start.isoformat(),
-                "hourlyEnd": hourly_end.isoformat(),
+                "hourlyStart": f"{hourly_start.isoformat()}Z",
+                "hourlyEnd": f"{hourly_end.isoformat()}Z",
             }
         )
 
