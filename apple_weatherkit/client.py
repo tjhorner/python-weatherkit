@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-import datetime
 import json
 import socket
-from collections import OrderedDict
-from typing import Literal
+from datetime import UTC, datetime, timedelta
+from typing import Any, Literal
 from urllib.parse import urlencode
 
 import aiohttp
@@ -47,17 +46,24 @@ class WeatherKitApiClient:
         lat: float,
         lon: float,
         data_sets: list[DataSetType] = [DataSetType.CURRENT_WEATHER],
-        hourly_start: datetime.datetime = datetime.datetime.utcnow(),
-        hourly_end: datetime.datetime = datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        hourly_start: datetime | None = None,
+        hourly_end: datetime | None = None,
         lang: str = "en-US"
-    ) -> any:
+    ) -> Any:
+        hourly_start = hourly_start or datetime.now(tz=UTC)
+        hourly_end = hourly_end or datetime.now(tz=UTC) + timedelta(days=1)
+        if hourly_start.tzinfo:
+            hourly_start = hourly_start.astimezone(tz=UTC).replace(tzinfo=None)
+        if hourly_end.tzinfo:
+            hourly_end = hourly_end.astimezone(tz=UTC).replace(tzinfo=None)
+
         token = self._generate_jwt()
         query = urlencode(
-            OrderedDict(
-                dataSets=",".join(data_sets),
-                hourlyStart=hourly_start.isoformat() + "Z",
-                hourlyEnd=hourly_end.isoformat() + "Z",
-            )
+            {
+                "dataSets": ",".join(data_sets),
+                "hourlyStart": f"{hourly_start.isoformat()}Z",
+                "hourlyEnd": f"{hourly_end.isoformat()}Z",
+            }
         )
 
         return await self._api_wrapper(
@@ -94,7 +100,7 @@ class WeatherKitApiClient:
         url: str,
         data: dict | None = None,
         headers: dict | None = None,
-    ) -> any:
+    ) -> Any:
         """Get information from the API."""
         if self._session is None:
             self._session = aiohttp.ClientSession()
