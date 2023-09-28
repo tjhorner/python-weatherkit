@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "apple_weatherkit"
-version = "1.0.3"
+version = "1.0.4"
 description = "Python client for Apple WeatherKit API"
 authors = ["TJ Horner <me@tjhorner.com>"]
 readme = "README.md"

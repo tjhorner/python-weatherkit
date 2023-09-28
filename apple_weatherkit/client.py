@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import socket
 from datetime import UTC, datetime, timedelta
-from typing import Any, Literal
+from typing import Any
 from urllib.parse import urlencode
 
 import aiohttp
@@ -85,8 +84,8 @@ class WeatherKitApiClient:
         return jwt.encode(
             {
                 "iss": self._team_id,
-                "iat": datetime.datetime.utcnow(),
-                "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=10),
+                "iat": datetime.now(tz=UTC),
+                "exp": datetime.now(tz=UTC) + timedelta(minutes=10),
                 "sub": self._service_id,
             },
             self._key_pem,
