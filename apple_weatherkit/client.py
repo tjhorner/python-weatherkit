@@ -40,6 +40,7 @@ class WeatherKitApiClient:
         self._team_id = team_id
         self._key_pem = key_pem
         self._session = session
+        self._client = None # lazy loaded
 
     async def get_weather_data(
         self,
