@@ -5,6 +5,7 @@ import socket
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.parse import urlencode
+from aiohttp_retry import RetryClient, ExponentialRetry
 
 import aiohttp
 import async_timeout
@@ -103,11 +104,21 @@ class WeatherKitApiClient:
         """Get information from the API."""
         if self._session is None:
             self._session = aiohttp.ClientSession()
+
+        if self._client is None:
+            retry_options = ExponentialRetry(
+                attempts=3,
+                statuses=(404, 401, 403), # automatically includes any 5xx errors
+                start_timeout=1,
+            )
+            self._client = RetryClient(retry_options=retry_options, client_session=self._session)
+
         try:
-            async with async_timeout.timeout(10):
-                response = await self._session.request(
+            async with async_timeout.timeout(20):
+                response = await self._client.request(
                     method=method,
                     url=url,
+                    raise_for_status=True,
                     headers=headers,
                     json=data,
                 )
@@ -129,9 +140,9 @@ class WeatherKitApiClient:
             ) from exception
         except (aiohttp.ClientError, socket.gaierror) as exception:
             raise WeatherKitApiClientCommunicationError(
-                "Error fetching information",
+                "Error fetching information: {exception}",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
             raise WeatherKitApiClientError(
-                "Something really wrong happened!"
+                "Something really wrong happened! {exception}"
             ) from exception

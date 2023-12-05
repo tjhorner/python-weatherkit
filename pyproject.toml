@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "apple_weatherkit"
-version = "1.0.4"
+version = "1.1.0"
 description = "Python client for Apple WeatherKit API"
 authors = ["TJ Horner <me@tjhorner.com>"]
 readme = "README.md"
@@ -10,6 +10,7 @@ repository = "https://github.com/tjhorner/python-weatherkit"
 python = "^3.11"
 aiohttp = "^3.8.5"
 pyjwt = {version = "==2.*", extras = ["crypto"]}
+aiohttp-retry = "^2.8.3"
 
 
 [build-system]
