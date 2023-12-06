@@ -137,13 +137,13 @@ class WeatherKitApiClient:
             raise exception
         except asyncio.TimeoutError as exception:
             raise WeatherKitApiClientCommunicationError(
-                "Timeout error fetching information",
+                f"Timeout error fetching information: {exception}",
             ) from exception
         except (aiohttp.ClientError, socket.gaierror) as exception:
             raise WeatherKitApiClientCommunicationError(
-                "Error fetching information: {exception}",
+                f"Error fetching information: {exception}",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
             raise WeatherKitApiClientError(
-                "Something really wrong happened! {exception}"
+                f"An unexpected error occurred: {exception}"
             ) from exception
