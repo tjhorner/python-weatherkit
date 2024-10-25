@@ -5,9 +5,7 @@ description = "Python client for Apple WeatherKit API"
 authors = ["TJ Horner <me@tjhorner.com>"]
 readme = "README.md"
 repository = "https://github.com/tjhorner/python-weatherkit"
-classifiers = [
-  "License :: OSI Approved :: MIT License",
-]
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.11"
