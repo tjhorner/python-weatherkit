@@ -49,7 +49,8 @@ class WeatherKitApiClient:
         data_sets: list[DataSetType] = [DataSetType.CURRENT_WEATHER],
         hourly_start: datetime | None = None,
         hourly_end: datetime | None = None,
-        lang: str = "en-US"
+        lang: str = "en-US",
+        country_code: str | None = None,
     ) -> Any:
         hourly_start = hourly_start or datetime.now(tz=UTC)
         hourly_end = hourly_end or datetime.now(tz=UTC) + timedelta(days=1)
@@ -59,13 +60,16 @@ class WeatherKitApiClient:
             hourly_end = hourly_end.astimezone(tz=UTC).replace(tzinfo=None)
 
         token = self._generate_jwt()
-        query = urlencode(
-            {
-                "dataSets": ",".join(data_sets),
-                "hourlyStart": f"{hourly_start.isoformat()}Z",
-                "hourlyEnd": f"{hourly_end.isoformat()}Z",
-            }
-        )
+        query_params = {
+            "dataSets": ",".join(data_sets),
+            "hourlyStart": f"{hourly_start.isoformat()}Z",
+            "hourlyEnd": f"{hourly_end.isoformat()}Z",
+        }
+
+        if country_code:
+            query_params["countryCode"] = country_code
+
+        query = urlencode(query_params)
 
         return await self._api_wrapper(
             method="get",
